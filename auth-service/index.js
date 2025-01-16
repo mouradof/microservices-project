@@ -3,11 +3,10 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = 7000;
-const SECRET_KEY = 'your_secret_key'; // Remplacez par une clé secrète sécurisée
+const SECRET_KEY = 'e1a5b6f7d4e2b1a6f4c2d3f9b2b8f5c8';
 
 app.use(express.json());
 
-// Endpoint pour générer un token JWT
 app.post('/auth/login', (req, res) => {
   const { username, password } = req.body;
 
