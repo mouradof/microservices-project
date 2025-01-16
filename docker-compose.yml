@@ -1,0 +1,80 @@
+networks:
+  my-network:
+    driver: bridge
+
+services:
+  consul-server:
+    image: consul:1.15.3
+    container_name: consul
+    ports:
+      - "8500:8500"
+    command: "agent -dev -client=0.0.0.0"
+    networks:
+      - my-network
+
+  front-end:
+    build: ./front-end
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./front-end:/app
+    environment:
+      NODE_ENV: development
+    networks:
+      - my-network
+
+  student-service:
+    build: ./student-service
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./student-service:/app
+    environment:
+      NODE_ENV: development
+    networks:
+      - my-network
+
+  school-service:
+    build: ./school-service
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./school-service:/app
+    environment:
+      NODE_ENV: development
+    networks:
+      - my-network
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./api-gateway:/app
+    environment:
+      NODE_ENV: development
+    networks:
+      - my-network
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "7000:7000"
+    environment:
+      NODE_ENV: development
+
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--providers.consulcatalog=true"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+    ports:
+      - "8081:80" # Port du Traefik dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - CONSUL_HTTP_ADDR=consul-server:8500
+    depends_on:
+      - consul-server
+
